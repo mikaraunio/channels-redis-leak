@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE tsung SYSTEM "/usr/local/share/tsung/tsung-1.0.dtd" [] >
+<tsung loglevel="warning" version="1.0">
+
+	<clients>
+		<client host="localhost" use_controller_vm="true" maxusers="15000"/>
+	</clients>
+
+	<servers>
+		<server host="localhost" port="8000" type="tcp"></server>
+	</servers>
+
+	<load>
+		<arrivalphase phase="1" duration="200" unit="second">
+			<users maxnumber="500" arrivalrate="500" unit="second"></users>
+		</arrivalphase>
+	</load>
+
+	<options>
+		<option name="hibernate" value="5"></option>
+		<option name="global_number" value="500"></option>
+	</options>
+
+	<sessions>
+		<session name="session" probability="100" type="ts_websocket">
+			<transaction name="open_ws">
+				<request subst="true">
+					<websocket type="connect" path="/socket/test" origin="http://localhost">
+					</websocket>
+				</request>
+			</transaction>
+			<!-- gather users -->
+			<thinktime value="wait_global"/>
+			<!-- stay connected -->
+			<thinktime min="10" max="40" random="true"/>
+			<transaction name="close_ws">
+				<request>
+					<websocket type="close"></websocket>
+				</request>
+			</transaction>
+			<!-- wait for cleanup -->
+			<thinktime value="5"/>
+		</session>
+	</sessions>
+
+</tsung>
